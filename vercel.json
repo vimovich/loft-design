@@ -1,1 +1,1 @@
-{"cleanUrls":true,"trailingSlash":false}
+{"cleanUrls":true,"trailingSlash":false,"redirects":[{"source":"/investors","destination":"/developers","permanent":true},{"source":"/investors.html","destination":"/developers","permanent":true}]}

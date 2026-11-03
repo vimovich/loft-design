@@ -289,5 +289,15 @@
     run();
   }
 
+  /* ---------- Geo scheme: highlight region on hover/tap ---------- */
+  $$('.districts [data-city]').forEach(ch => {
+    const node = document.getElementById('geo-' + ch.dataset.city);
+    if (!node) return;
+    const on = () => { $$('.geo-node.is-hot, .districts .is-hot').forEach(x => x.classList.remove('is-hot')); node.classList.add('is-hot'); ch.classList.add('is-hot'); };
+    const off = () => { node.classList.remove('is-hot'); ch.classList.remove('is-hot'); };
+    ch.addEventListener('mouseenter', on); ch.addEventListener('focus', on); ch.addEventListener('click', on);
+    ch.addEventListener('mouseleave', off); ch.addEventListener('blur', off);
+  });
+
   $$('.year').forEach(y => y.textContent = new Date().getFullYear());
 })();

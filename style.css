@@ -768,3 +768,5 @@ img.broken{opacity:0}
   .geo__tip{position:relative;top:auto;right:auto;margin:0 12px 10px;opacity:1;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .geo__tip span{margin-top:0}
 }
+@media (min-width:721px){.hero__stats{flex-wrap:nowrap}.hero__stat{white-space:nowrap}}
+@media (max-width:720px){.hero__stats{grid-template-columns:repeat(3,auto);justify-content:space-between;column-gap:12px}.hero__stat:nth-child(3){grid-column:auto}}

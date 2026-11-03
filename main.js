@@ -289,15 +289,46 @@
     run();
   }
 
-  /* ---------- Geo scheme: highlight region on hover/tap ---------- */
-  $$('.districts [data-city]').forEach(ch => {
-    const node = document.getElementById('geo-' + ch.dataset.city);
-    if (!node) return;
-    const on = () => { $$('.geo-node.is-hot, .districts .is-hot').forEach(x => x.classList.remove('is-hot')); node.classList.add('is-hot'); ch.classList.add('is-hot'); };
-    const off = () => { node.classList.remove('is-hot'); ch.classList.remove('is-hot'); };
-    ch.addEventListener('mouseenter', on); ch.addEventListener('focus', on); ch.addEventListener('click', on);
-    ch.addEventListener('mouseleave', off); ch.addEventListener('blur', off);
-  });
+  /* ---------- Geo scheme: список областей ↔ схема, автопоказ ---------- */
+  const geo = $('.geo');
+  if (geo) {
+    const chips = $$('.districts [data-city]');
+    const tip = $('.geo__tip', geo), tipCity = $('.geo__tip b', geo), tipReg = $('.geo__tip span', geo);
+    const order = [...new Set(chips.map(c => c.dataset.city))];
+    let cur = null, autoT = null, idleT = null, k = 0;
+    const set = cid => {
+      if (cur === cid) return;
+      cur = cid;
+      $$('.is-hot', geo).forEach(x => x.classList.remove('is-hot'));
+      chips.forEach(c => c.classList.toggle('is-hot', c.dataset.city === cid));
+      if (!cid) { geo.classList.remove('has-hot'); return; }
+      const node = document.getElementById('geo-' + cid), line = document.getElementById('geo-line-' + cid);
+      node && node.classList.add('is-hot'); line && line.classList.add('is-hot');
+      geo.classList.add('has-hot');
+      if (tip && node) {
+        tipCity.textContent = node.dataset.name;
+        tipReg.textContent = chips.filter(c => c.dataset.city === cid).map(c => c.textContent).join(', ');
+        tip.classList.remove('show'); void tip.offsetWidth; tip.classList.add('show');
+      }
+    };
+    const auto = () => { clearInterval(autoT); autoT = setInterval(() => { k = (k + 1) % order.length; set(order[k]); }, 2600); };
+    const pause = () => { clearInterval(autoT); clearTimeout(idleT); };
+    const resume = () => { clearTimeout(idleT); idleT = setTimeout(auto, 5000); };
+    const bind = (el, cid) => {
+      el.addEventListener('mouseenter', () => { pause(); set(cid); });
+      el.addEventListener('focus', () => { pause(); set(cid); });
+      el.addEventListener('click', () => { pause(); set(cid); resume(); });
+      el.addEventListener('mouseleave', resume);
+      el.addEventListener('blur', resume);
+    };
+    chips.forEach(c => bind(c, c.dataset.city));
+    $$('.geo-node', geo).forEach(n => bind(n, n.id.replace('geo-', '')));
+    // автопоказ стартует, когда блок виден на экране
+    const vio = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { if (!cur) set(order[0]); auto(); } else pause();
+    }), { threshold: .3 });
+    if (!reduce) vio.observe(geo); else set(order[0]);
+  }
 
   $$('.year').forEach(y => y.textContent = new Date().getFullYear());
 })();
